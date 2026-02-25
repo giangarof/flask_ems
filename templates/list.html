@@ -1,0 +1,22 @@
+{% extends 'navbar.html' %} {% block content %}
+
+<!-- list users -->
+<div class="m-5">
+  <ul class="list-group">
+    <li class="list-group-item active" aria-current="true">Employee List</li>
+    {% for employee in employees %}
+    <li class="list-group-item">{{employee}}</li>
+    {% else %}
+    <li class="list-group-item">
+      <p>There are no employees...</p>
+      <a href="{{url_for('add')}}">Click here to start adding</a>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<!-- form to delete and update user -->
+
+<!-- option to get the profile of each user -->
+
+{% endblock %}
