@@ -1,11 +1,23 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, SelectField
+from wtforms import StringField, IntegerField, SubmitField, SelectField, DateField
 
 
 class AddForm(FlaskForm):
     name = StringField("Enter your name")
     about = StringField("About me")
     degree = StringField("Highest degree")
+    salary = IntegerField("Salary compesation")
+    hired = DateField("Hired date")
+    employment_type = SelectField(
+        "Employment Type",
+        choices=[
+            ("Full-Time", "Full-Time"),
+            ("Part-Time", "Part-Time"),
+            ("Volunteer", "Volunteer"),
+            ("Seasonal", "Seasonal"),
+            ("Apprenticeship", "Apprenticeship"),
+        ],
+    )
     department = SelectField(
         "Department",
         choices=[

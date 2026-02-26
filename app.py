@@ -35,26 +35,18 @@ Migrate(app, db)
 class Employee(db.Model):
     __tablename__ = "employee"
     id = db.Column(db.Integer, primary_key=True)
+    # personal information
     name = db.Column(db.Text, nullable=False)
     about = db.Column(db.Text)
     degree = db.Column(db.Text)
-    department_id = db.Column(
-        db.Integer, db.ForeignKey("department.id"), nullable=False
-    )
-    # department = db.relationship("Department")
-
-
-class Department(db.Model):
-    __tablename__ = "department"
-    id = db.Column(db.Integer, primary_key=True)
-    department_name = db.Column(db.Text)
-
-    employee = db.relationship("Employee", backref="department", lazy=True)
+    # Company information
+    salary = db.Column(db.Integer)
+    hired = db.Column(db.Date)
+    employment_type = db.Column(db.Text)
+    department = db.Column(db.Text, nullable=False)
 
 
 # Routes
-
-
 @app.route("/", methods=["GET"])
 def index():
     return render_template("home.html")
@@ -63,12 +55,36 @@ def index():
 @app.route("/list")
 def list_all():
     employees = Employee.query.all()
+    print(type(employees))
     return render_template("list.html", employees=employees)
 
 
 @app.route("/add", methods=["GET", "POST"])
 def add():
-    return render_template("add.html")
+    form = AddForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        about = form.about.data
+        degree = form.degree.data
+        department = form.department.data
+        salary = form.salary.data
+        employment_type = form.employment_type.data
+        hired = form.hired.data
+
+        new_employee = Employee(
+            name, about, degree, department, salary, employment_type, hired
+        )
+        db.session.add(new_employee)
+        db.session.commit()
+        return redirect(url_for("list_all"))
+
+    return render_template("add.html", form=form)
+
+
+@app.route("/user/<int:id>", methods=["GET"])
+def getUser(id):
+    employee = Employee.query.get(id)
+    return render_template("profile.html", employee=employee)
 
 
 @app.route("/update", methods=["GET", "POST"])
