@@ -15,7 +15,19 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://kit.fontawesome.com/d203edcaa8.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
+  <style>
+    .hover-red:hover {
+      color: red;
+    }
+    .hover-green:hover {
+      color: green;
+    }
+  </style>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
@@ -32,13 +44,23 @@
             <li class="nav-item">
               <a class="nav-link" href="{{url_for('list_all')}}">List all</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('add')}}">Add Employee</a>
+            </li>
           </ul>
-          <form class="d-flex" role="search">
+          <form
+            class="d-flex"
+            role="search"
+            method="GET"
+            action="{{ url_for('list_all') }}"
+          >
             <input
               class="form-control me-2"
               type="search"
-              placeholder="Search"
+              placeholder="Search by name"
+              name="q"
               aria-label="Search"
+              value="{{ request.args.get('q', '') }}"
             />
             <button class="btn btn-outline-success" type="submit">
               Search
@@ -48,6 +70,21 @@
       </div>
     </nav>
 
-    {% block content %} {% endblock %}
+    {% for msg in get_flashed_messages() %}
+
+    <div
+      class="alert alert-success alert-dismissible fade show m-5"
+      role="alert"
+    >
+      <strong>{{ msg }}</strong>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+
+    {% endfor %} {% block content %} {% endblock %}
   </body>
 </html>

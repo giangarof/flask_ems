@@ -9,6 +9,8 @@
         <th scope="col">ID</th>
         <th scope="col">NAME</th>
         <th scope="col">DEPARTMENT</th>
+        <th scope="col">Update</th>
+        <th scope="col">Delete</th>
       </tr>
     </thead>
     <tbody>
@@ -19,6 +21,18 @@
           <a href="{{url_for('getUser', id=employee.id)}}">{{employee.name}}</a>
         </td>
         <td>{{employee.department}}</td>
+        <td>
+          <a href="{{url_for('update', id=employee.id)}}" class="hover-green"
+            ><i class="fa-solid fa-pen-to-square"></i
+          ></a>
+        </td>
+        <td>
+          <form action="POST">
+            <a href="{{url_for('delete', id=employee.id)}}" class="hover-red"
+              ><i class="fa-solid fa-x"></i
+            ></a>
+          </form>
+        </td>
       </tr>
       {% else %}
       <p>There are not employees</p>

@@ -1,10 +1,27 @@
 {% extends 'navbar.html' %} {% block content %}
 
-<div class="m-5">
-  <p>Employee name: {{employee.name}}</p>
-  <p>Highest degree: {{employee.degree}}</p>
-  <p>Department: {{employee.department}}</p>
-  <p>About the employee: {{employee.about}}</p>
+<div class="d-flex flex-column gap-3 m-5">
+  <h1 class="text-center">Employee information</h1>
+  <div class="bg-dark-subtle rounded p-2">
+    <h2>Employee basic information</h2>
+    <p>Employee name: {{employee.name}}</p>
+    <p>About the employee: {{employee.about}}</p>
+  </div>
+  <div class="bg-dark-subtle rounded p-2">
+    <h2>Education</h2>
+    <p>Highest degree: {{employee.degree}}</p>
+  </div>
+  <div class="bg-dark-subtle rounded p-2">
+    <h2>Company information</h2>
+    <p>Department: {{employee.department}}</p>
+    <p>Salary: {{employee.salary}}</p>
+    <p>Hired: {{employee.hired}}</p>
+    <p>Employment type: {{employee.employment_type}}</p>
+  </div>
+
+  <div class="text-center">
+    <a href="{{url_for('update', id=employee.id)}}">Update user</a>
+  </div>
 
   <!-- add update btn -->
 </div>

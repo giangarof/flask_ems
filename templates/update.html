@@ -1,0 +1,46 @@
+{% extends 'navbar.html' %} {% block content %}
+<div class="m-5">
+  <form method="POST">
+    <h1>Update employee</h1>
+    {{form.hidden_tag()}}
+    <div class="mb-3">
+      <label for="name" class="form-label">{{form.name.label}}</label>
+      {{ form.name(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label for="about" class="form-label">{{form.about.label}}</label>
+      {{ form.about(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label for="degree" class="form-label">{{form.degree.label}}</label>
+      {{ form.degree(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label for="department" class="form-label"
+        >{{form.department.label}}</label
+      >
+      {{ form.department(class="form-select") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="salary" class="form-label">{{form.salary.label}}</label>
+      {{ form.salary(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="employment_type" class="form-label"
+        >{{form.employment_type.label}}</label
+      >
+      {{ form.employment_type(class="form-control") }}
+    </div>
+
+    <div class="mb-3">
+      <label for="hired" class="form-label">{{form.hired.label}}</label>
+      {{ form.hired(class="form-control") }}
+    </div>
+
+    {{form.submit(class="btn btn-primary")}}
+  </form>
+</div>
+
+{% endblock %}

@@ -39,9 +39,31 @@ class DelForm(FlaskForm):
 
 
 class UpdateForm(FlaskForm):
-    id = IntegerField("ID user number to remove: ")
     name = StringField("Enter your name")
     about = StringField("About me")
     degree = StringField("Highest degree")
-    department = StringField("Enter department")
+    salary = IntegerField("Salary compesation")
+    hired = DateField("Hired date")
+    employment_type = SelectField(
+        "Employment Type",
+        choices=[
+            ("Full-Time", "Full-Time"),
+            ("Part-Time", "Part-Time"),
+            ("Volunteer", "Volunteer"),
+            ("Seasonal", "Seasonal"),
+            ("Apprenticeship", "Apprenticeship"),
+        ],
+    )
+    department = SelectField(
+        "Department",
+        choices=[
+            ("IT", "IT"),
+            ("Help Desk", "Help Desk"),
+            ("HR", "HR"),
+            ("SWE", "SWE"),
+            ("Data Analytics", "Data Analytics"),
+            ("FrontEnd", "FrontEnd"),
+            ("Backend", "Backend"),
+        ],
+    )
     submit = SubmitField("Update User")
