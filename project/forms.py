@@ -1,9 +1,19 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SubmitField, SelectField, DateField
+from wtforms import (
+    StringField,
+    IntegerField,
+    SubmitField,
+    SelectField,
+    DateField,
+    PasswordField,
+    EmailField,
+)
 
 
 class AddForm(FlaskForm):
     name = StringField("Enter your name")
+    password = PasswordField("Set ypu password")
+    email = EmailField("Your email")
     about = StringField("About me")
     degree = StringField("Highest degree")
     salary = IntegerField("Salary compesation")
