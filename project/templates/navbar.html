@@ -41,14 +41,18 @@
                 >Home</a
               >
             </li>
+            {% if current_user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{{url_for('list_all')}}">List all</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{{url_for('add')}}">Add Employee</a>
             </li>
-          </ul>
-          <form
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('logout')}}">Add Employee</a>
+            </li>
+
+            <!-- <form
             class="d-flex"
             role="search"
             method="GET"
@@ -65,15 +69,27 @@
             <button class="btn btn-outline-success" type="submit">
               Search
             </button>
-          </form>
+          </form> -->
+
+            {% else %}
+
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('login')}}">Login</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{{url_for('signup')}}">Signup</a>
+            </li>
+
+            {% endif %}
+          </ul>
         </div>
       </div>
     </nav>
 
-    {% for msg in get_flashed_messages() %}
+    {% for category, msg in get_flashed_messages(with_categories=true) %}
 
     <div
-      class="alert alert-success alert-dismissible fade show m-5"
+      class="alert alert-{{category}} alert-dismissible fade show m-5"
       role="alert"
     >
       <strong>{{ msg }}</strong>

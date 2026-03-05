@@ -8,6 +8,7 @@ from wtforms import (
     PasswordField,
     EmailField,
 )
+from wtforms.validators import DataRequired, Email, EqualTo
 
 
 class AddForm(FlaskForm):
@@ -76,4 +77,28 @@ class UpdateForm(FlaskForm):
             ("Backend", "Backend"),
         ],
     )
+    role = SelectField(
+        "Role Type",
+        choices=[
+            ("admin", "admin"),
+            ("hr", "hr"),
+            ("employee", "employee"),
+            ("manager", "manager"),
+        ],
+    )
+
     submit = SubmitField("Update User")
+
+
+class AddUserForm(FlaskForm):
+    name = StringField("Enter your name", validators=[DataRequired()])
+    password = PasswordField("Set your password", validators=[DataRequired()])
+    email = EmailField("Your email", validators=[DataRequired(), Email()])
+
+    submit = SubmitField("Create User")
+
+
+class LoginUserForm(FlaskForm):
+    password = PasswordField("Your password", validators=[DataRequired()])
+    email = EmailField("Your email", validators=[DataRequired(), Email()])
+    submit = SubmitField("LogIn User")

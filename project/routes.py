@@ -1,13 +1,14 @@
 from flask import Flask, render_template, url_for, redirect, request, flash
 
 # from . import db, bcrypt
-from .forms import AddForm, DelForm, UpdateForm
-from .models import Employee
-from .extensions import db
+from .forms import AddForm, DelForm, UpdateForm, AddUserForm, LoginUserForm
+from .models import Employee, User
+from .extensions import db, bcrypt
+from flask_login import login_user, logout_user, login_required
 
 
 class EmployeeRoutes:
-    def __init__(self, app, db, bcrypt):
+    def __init__(self, app, db):
         self.app = app
         self.register_routes()
         self.db = db
@@ -88,3 +89,60 @@ class EmployeeRoutes:
             db.session.commit()
             flash("Employee deleted successfully!", "success")
             return redirect(url_for("list_all"))
+
+
+class UserRoutes:
+
+    def __init__(self, app, db, bcrypt):
+        self.app = app
+        self.user_routes()
+        self.db = db
+        self.bcrypt = bcrypt
+
+    def user_routes(self):
+
+        @self.app.route("/login", methods=["GET", "POST"])
+        def login():
+            form = LoginUserForm()
+
+            if form.validate_on_submit():
+                # get the email first
+                user = User.query.filter_by(email=form.email.data).first()
+                # check the password
+                if user is not None and user.check_password(form.password.data):
+                    login_user(user)
+                    flash("Welcome back!", "success")
+                    return redirect(
+                        url_for(
+                            "profile",
+                        )
+                    )
+                else:
+                    flash("wrong credentials", "danger")
+
+            return render_template("user/login.html", form=form)
+
+        @self.app.route("/logout", methods=["GET", "POST"])
+        def logout():
+            pass
+
+        @self.app.route("/signup", methods=["GET", "POST"])
+        def signup():
+            form = AddUserForm()
+            if form.validate_on_submit():
+                new_user = User(
+                    name=form.name.data,
+                    email=form.email.data,
+                    password=form.password.data,
+                )
+                db.session.add(new_user)
+                db.session.commit()
+                flash(
+                    "Thanks for creating an account with us! Please, login", "success"
+                )
+                return redirect(url_for("login"))
+            return render_template("user/signup.html", form=form)
+
+        @self.app.route("/profile", methods=["GET"])
+        def profile():
+            return render_template("user/profile.html")

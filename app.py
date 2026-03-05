@@ -1,5 +1,5 @@
 # Imports
-from project import create_app
+from project import create_app, login_manager
 from flask import Flask
 
 # Entry point
