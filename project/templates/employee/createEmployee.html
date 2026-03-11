@@ -1,0 +1,31 @@
+{% extends 'navbar.html' %} {% block content %}
+
+<div class="m-5">
+  <h1>Add a new employee</h1>
+  <p>
+    Notice: after creation, employees are unassigned. You must add it manually
+  </p>
+  <form method="POST">
+    {{form.hidden_tag()}}
+    <div class="mb-3">
+      <label for="name" class="form-label">{{form.name.label}}</label>
+      {{ form.name(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">{{form.email.label}}</label>
+      {{ form.email(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label for="degree" class="form-label">{{form.degree.label}}</label>
+      {{ form.degree(class="form-control") }}
+    </div>
+    <div class="mb-3">
+      <label for="status" class="form-label">{{form.status.label}}</label>
+      {{ form.status(class="form-control") }}
+    </div>
+
+    {{form.submit(class="btn btn-primary")}}
+  </form>
+</div>
+
+{% endblock %}

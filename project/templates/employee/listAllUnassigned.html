@@ -1,0 +1,53 @@
+{% extends 'navbar.html' %} {% block content %}
+
+<div class="m-5">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th>Name</th>
+        <th>Email</th>
+
+        <th>Degree</th>
+
+        <th>Status</th>
+
+        <th>Update</th>
+        <th>Assign</th>
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for employee in employees %}
+      <tr>
+        <th scope="row">{{employee.id}}</th>
+        <td>{{employee.name}}</td>
+        <td>{{employee.email}}</td>
+
+        <td>{{employee.degree}}</td>
+
+        <td>{{employee.status}}</td>
+
+        <td>
+          <a href="{{url_for('updateUnassigned', id=employee.id)}}"><i class="fa-regular fa-pen-to-square"></i></a>
+        </td>
+
+        <td>
+          <a href="{{url_for('assignEmployee', id=employee.id)}}">Asign to a company</a>
+        </td>
+
+        <td>
+          <a href="{{url_for('delete', id=employee.id)}}" class="hover-red"
+            ><i class="fa-solid fa-x"></i
+          ></a>
+        </td>
+      </tr>
+      {% else %}
+      <p>No Employee in this company yet ...</p>
+      <button class="btn btn-primary">Add employees</button>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}

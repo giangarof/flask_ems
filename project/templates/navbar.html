@@ -19,6 +19,10 @@
       src="https://kit.fontawesome.com/d203edcaa8.js"
       crossorigin="anonymous"
     ></script>
+    <script
+      src="https://kit.fontawesome.com/d203edcaa8.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <style>
     .hover-red:hover {
@@ -43,33 +47,13 @@
             </li>
             {% if current_user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for('list_all')}}">List all</a>
+              <a class="nav-link" href="{{url_for('profile')}}"
+                >{{current_user.name}}</a
+              >
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="{{url_for('add')}}">Add Employee</a>
+              <a class="nav-link" href="{{url_for('logout')}}">Logout</a>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="{{url_for('logout')}}">Add Employee</a>
-            </li>
-
-            <!-- <form
-            class="d-flex"
-            role="search"
-            method="GET"
-            action="{{ url_for('list_all') }}"
-          >
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search by name"
-              name="q"
-              aria-label="Search"
-              value="{{ request.args.get('q', '') }}"
-            />
-            <button class="btn btn-outline-success" type="submit">
-              Search
-            </button>
-          </form> -->
 
             {% else %}
 

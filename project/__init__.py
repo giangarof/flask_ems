@@ -1,7 +1,7 @@
 # Imports
 import os
 from flask import Flask
-from .routes import EmployeeRoutes, UserRoutes
+from .routes import EmployeeRoutes, UserRoutes, CompanyRoutes
 from .extensions import db, migrate, bcrypt, login_manager
 from .models import User
 
@@ -18,5 +18,6 @@ def create_app():
     login_manager.init_app(app)
     EmployeeRoutes(app, db)
     UserRoutes(app, db, bcrypt)
+    CompanyRoutes(app, db)
 
     return app

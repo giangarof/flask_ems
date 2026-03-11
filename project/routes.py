@@ -1,94 +1,158 @@
-from flask import Flask, render_template, url_for, redirect, request, flash
+from flask import Flask, abort, render_template, url_for, redirect, request, flash
 
 # from . import db, bcrypt
-from .forms import AddForm, DelForm, UpdateForm, AddUserForm, LoginUserForm
-from .models import Employee, User
+from .forms import (
+    CreateEmployeeForm,
+    DelEmployeeForm,
+    
+    SignupUserForm,
+    LoginUserForm,
+    CreateCompanyForm,
+    UpdateCompanyForm,
+    AssignEmployeeForm,
+    UpdateUnassignedFom,
+    UpdateAssignedFom,
+)
+from .models import Employee, User, Company
 from .extensions import db, bcrypt
-from flask_login import login_user, logout_user, login_required
+from flask_login import login_user, logout_user, login_required, current_user
 
 
 class EmployeeRoutes:
     def __init__(self, app, db):
         self.app = app
-        self.register_routes()
+        self.employee_routes()
         self.db = db
         self.bcrypt = bcrypt
 
     # Routes
-    def register_routes(self):
+    def employee_routes(self):
         @self.app.route("/", methods=["GET"])
         def index():
             return render_template("home.html")
 
-        @self.app.route("/list")
-        def list_all():
-            employees = Employee.query.all()
-            search = request.args.get("q")
-            if search:
-                employees = Employee.query.filter(
-                    Employee.name.ilike(f"%{search}%")
-                ).all()
-            else:
-                employees = Employee.query.all()
+        @self.app.route("/list_unassigned")
+        def list_all_unassigned():
+            employees = Employee.query.filter_by(
+                status="Unassigned", created_by=current_user.id
+            ).all()
 
-            return render_template("list.html", employees=employees)
+            return render_template(
+                "employee/listAllUnassigned.html", employees=employees
+            )
 
         @self.app.route("/add", methods=["GET", "POST"])
         def add():
-            form = AddForm()
+            form = CreateEmployeeForm()
 
             if form.validate_on_submit():
 
                 new_employee = Employee(
                     name=form.name.data,
-                    # password_hashed=bcrypt.generate_password_hash(form.password.data),
-                    # email=form.email.data,
-                    about=form.about.data,
+                    email=form.email.data,
                     degree=form.degree.data,
-                    department=form.department.data,
-                    salary=form.salary.data,
-                    employment_type=form.employment_type.data,
-                    hired=form.hired.data,
+                    status=form.status.data,
+                    created_by=current_user.id,
                 )
                 db.session.add(new_employee)
                 db.session.commit()
                 flash("Employee created successfully!", "success")
-                return redirect(url_for("list_all"))
+                return redirect(url_for("profile"))
 
-            return render_template("add.html", form=form)
+            return render_template("employee/createEmployee.html", form=form)
 
-        @self.app.route("/user/<int:id>", methods=["GET"])
-        def getUser(id):
+        # @self.app.route("/user/<int:id>", methods=["GET"])
+        # def getUser(id):
+        #     employee = Employee.query.get(id)
+        #     return render_template("profile.html", employee=employee)
+
+        @self.app.route("/update_unassiged/<int:id>", methods=["GET", "POST"])
+        def updateUnassigned(id):
             employee = Employee.query.get(id)
-            return render_template("profile.html", employee=employee)
-
-        @self.app.route("/update/<int:id>", methods=["GET", "POST"])
-        def update(id):
-            employee = Employee.query.get(id)
-            form = UpdateForm(obj=employee)
+            form = UpdateUnassignedFom(obj=employee)
             if form.validate_on_submit():
 
                 employee.name = form.name.data
-                employee.about = form.about.data
+                employee.email = form.email.data
                 employee.degree = form.degree.data
-                employee.department = form.department.data
-                employee.salary = form.salary.data
-                employee.employment_type = form.employment_type.data
-                employee.hired = form.hired.data
 
                 db.session.commit()
                 flash("Employee updated successfully!", "success")
-                return redirect(url_for("list_all"))
+                return redirect(url_for("profile"))
 
-            return render_template("update.html", form=form, employee=employee)
+            return render_template(
+                "employee/updateUnassigned.html", form=form, employee=employee
+            )
 
         @self.app.route("/delete/<int:id>", methods=["GET", "POST"])
         def delete(id):
             employee = Employee.query.get(id)
+            if employee.created_by != current_user.id:
+                abort(403)
             db.session.delete(employee)
             db.session.commit()
             flash("Employee deleted successfully!", "success")
-            return redirect(url_for("list_all"))
+            return redirect(url_for("list_all_unassigned"))
+
+        @self.app.route("/assign/<int:id>", methods=["GET", "POST"])
+        def assignEmployee(id):
+            form = AssignEmployeeForm()
+            # get the employee id
+            employee = Employee.query.get(id)
+
+            # query only the companies that the user has
+            companies = Company.query.filter_by(owner_id=current_user.id).all()
+
+            # populate select field dynamically
+            form.company_id.choices = [(c.id, c.name) for c in companies]
+
+            # form to assign
+            if form.validate_on_submit():
+                employee.salary = form.salary.data
+                employee.hired = form.hired.data
+                employee.role = form.role.data
+                employee.employment_type = form.employment_type.data
+                employee.department = form.department.data
+                employee.company_id = form.company_id.data
+                employee.status = "Active"
+
+                db.session.commit()
+                flash("Employee assigned successfully!", "success")
+                return redirect(url_for("profile"))
+
+            return render_template(
+                "employee/assignToACompany.html", form=form, employee=employee
+            )
+
+        @self.app.route("/update_assiged/<int:id>", methods=["GET", "POST"])
+        def updateAssigned(id):
+            employee = Employee.query.get(id)
+            form = UpdateAssignedFom(obj=employee)
+            if form.validate_on_submit():
+
+                employee.salary = form.salary.data
+                employee.hired = form.hired.data
+                employee.role = form.role.data
+                employee.employment_type = form.employment_type.data
+                employee.department = form.department.data
+
+                db.session.commit()
+                flash("Employee updated successfully!", "success")
+                return redirect(url_for("profile"))
+
+            return render_template(
+                "employee/updateAssigned.html", form=form, employee=employee
+            )
+
+        @self.app.route("/remove/<int:id>", methods=["GET", "POST"])
+        def unassignEmployee(id):
+            employee = Employee.query.get(id)
+            if employee.created_by == current_user.id:
+                employee.status = "Unassigned"
+
+            db.session.commit()
+            flash("Employee removed from the company", "success")
+            return redirect(url_for("profile"))
 
 
 class UserRoutes:
@@ -123,12 +187,15 @@ class UserRoutes:
             return render_template("user/login.html", form=form)
 
         @self.app.route("/logout", methods=["GET", "POST"])
+        @login_required
         def logout():
-            pass
+            logout_user()
+            flash("You have been logeed out.", "success")
+            return redirect(url_for("login"))
 
         @self.app.route("/signup", methods=["GET", "POST"])
         def signup():
-            form = AddUserForm()
+            form = SignupUserForm()
             if form.validate_on_submit():
                 new_user = User(
                     name=form.name.data,
@@ -144,5 +211,74 @@ class UserRoutes:
             return render_template("user/signup.html", form=form)
 
         @self.app.route("/profile", methods=["GET"])
+        @login_required
         def profile():
             return render_template("user/profile.html")
+
+
+class CompanyRoutes:
+
+    def __init__(self, app, db):
+        self.app = app
+        self.db = db
+        self.company_routes()
+
+    def company_routes(self):
+
+        @self.app.route("/companies", methods=["GET"])
+        @login_required
+        def companies():
+            companies = Company.query.filter_by(owner_id=current_user.id).all()
+            return render_template("company/companies.html", companies=companies)
+
+        @self.app.route("/add_company", methods=["GET", "POST"])
+        @login_required
+        def createCompany():
+            form = CreateCompanyForm()
+            if form.validate_on_submit():
+                new_company = Company(
+                    name=form.name.data, about=form.about.data, owner_id=current_user.id
+                )
+                db.session.add(new_company)
+                db.session.commit()
+
+                flash("Company created successfully", "success")
+                return redirect(url_for("profile"))
+            return render_template("company/addCompany.html", form=form)
+
+        @self.app.route("/update_company/<int:id>", methods=["GET", "POST"])
+        @login_required
+        def updateCompany(id):
+            company = Company.query.get(id)
+            form = UpdateCompanyForm(obj=company)
+            if form.validate_on_submit():
+                company.name = form.name.data
+                company.about = form.about.data
+
+                db.session.commit()
+                flash("company updated successfully!", "success")
+                return redirect(url_for("companies"))
+
+            return render_template(
+                "company/updateCompany.html", form=form, company=company
+            )
+
+        @self.app.route("/delete_company", methods=["GET", "POST"])
+        @login_required
+        def deleteCompany():
+            pass
+
+        @self.app.route("/add_user_to_company", methods=["GET", "POST"])
+        @login_required
+        def addUserToCompany():
+            pass
+
+        @self.app.route("/remove_user_to_company", methods=["GET", "POST"])
+        @login_required
+        def removeUserFromCompany():
+            pass
+
+        @self.app.route("/company_employees/<int:id>", methods=["GET"])
+        def list_company_employees(id):
+            employees = Employee.query.filter_by(company_id=id, status="Active").all()
+            return render_template("company/companyEmployees.html", employees=employees)
