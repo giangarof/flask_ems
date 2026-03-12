@@ -4,7 +4,6 @@ from flask import Flask, abort, render_template, url_for, redirect, request, fla
 from .forms import (
     CreateEmployeeForm,
     DelEmployeeForm,
-    
     SignupUserForm,
     LoginUserForm,
     CreateCompanyForm,
@@ -12,10 +11,24 @@ from .forms import (
     AssignEmployeeForm,
     UpdateUnassignedFom,
     UpdateAssignedFom,
+    AddDepartmentForm,
 )
-from .models import Employee, User, Company
+from .models import Employee, User, Company, Department
 from .extensions import db, bcrypt
 from flask_login import login_user, logout_user, login_required, current_user
+
+
+class BaseRoutes:
+
+    def __init__(self, app):
+        self.app = app
+        self.base_routes()
+
+    def base_routes(self):
+
+        @self.app.route("/", methods=["GET"])
+        def index():
+            return render_template("home.html")
 
 
 class EmployeeRoutes:
@@ -27,20 +40,12 @@ class EmployeeRoutes:
 
     # Routes
     def employee_routes(self):
-        @self.app.route("/", methods=["GET"])
-        def index():
-            return render_template("home.html")
 
-        @self.app.route("/list_unassigned")
-        def list_all_unassigned():
-            employees = Employee.query.filter_by(
-                status="Unassigned", created_by=current_user.id
-            ).all()
+        # FIRST PART
+        # UNASSIGNED EMPLOYEE SECTION
 
-            return render_template(
-                "employee/listAllUnassigned.html", employees=employees
-            )
-
+        # CREATE EMPLOYEE
+        # UNASSIGNED BY DEFAULT
         @self.app.route("/add", methods=["GET", "POST"])
         def add():
             form = CreateEmployeeForm()
@@ -61,11 +66,7 @@ class EmployeeRoutes:
 
             return render_template("employee/createEmployee.html", form=form)
 
-        # @self.app.route("/user/<int:id>", methods=["GET"])
-        # def getUser(id):
-        #     employee = Employee.query.get(id)
-        #     return render_template("profile.html", employee=employee)
-
+        # UPDATE EMPLOYEE UNASSIGNED
         @self.app.route("/update_unassiged/<int:id>", methods=["GET", "POST"])
         def updateUnassigned(id):
             employee = Employee.query.get(id)
@@ -84,6 +85,19 @@ class EmployeeRoutes:
                 "employee/updateUnassigned.html", form=form, employee=employee
             )
 
+        # LIST ALL UNASSIGNED
+        # FILTER BY CREATED_BY
+        @self.app.route("/list_unassigned")
+        def list_all_unassigned():
+            employees = Employee.query.filter_by(
+                status="Unassigned", created_by=current_user.id
+            ).all()
+
+            return render_template(
+                "employee/listAllUnassigned.html", employees=employees
+            )
+
+        # DELETE EMPLOYEE FROM DB
         @self.app.route("/delete/<int:id>", methods=["GET", "POST"])
         def delete(id):
             employee = Employee.query.get(id)
@@ -94,6 +108,11 @@ class EmployeeRoutes:
             flash("Employee deleted successfully!", "success")
             return redirect(url_for("list_all_unassigned"))
 
+        # SECONG PART
+        # ASSIGNED EMPLOYEE
+
+        # ASIGN EMPLOYEE TO A COMPANY
+        # CHANGE STATUS FROM UNASIGNED TO ACTIVE
         @self.app.route("/assign/<int:id>", methods=["GET", "POST"])
         def assignEmployee(id):
             form = AssignEmployeeForm()
@@ -124,6 +143,7 @@ class EmployeeRoutes:
                 "employee/assignToACompany.html", form=form, employee=employee
             )
 
+        # UPDATE ASSIGNED EMPLOYEE
         @self.app.route("/update_assiged/<int:id>", methods=["GET", "POST"])
         def updateAssigned(id):
             employee = Employee.query.get(id)
@@ -144,6 +164,7 @@ class EmployeeRoutes:
                 "employee/updateAssigned.html", form=form, employee=employee
             )
 
+        # REMOVE FROM ACTIVE TO UNASSIGNED
         @self.app.route("/remove/<int:id>", methods=["GET", "POST"])
         def unassignEmployee(id):
             employee = Employee.query.get(id)
@@ -268,17 +289,45 @@ class CompanyRoutes:
         def deleteCompany():
             pass
 
-        @self.app.route("/add_user_to_company", methods=["GET", "POST"])
-        @login_required
-        def addUserToCompany():
-            pass
-
-        @self.app.route("/remove_user_to_company", methods=["GET", "POST"])
-        @login_required
-        def removeUserFromCompany():
-            pass
-
         @self.app.route("/company_employees/<int:id>", methods=["GET"])
         def list_company_employees(id):
             employees = Employee.query.filter_by(company_id=id, status="Active").all()
             return render_template("company/companyEmployees.html", employees=employees)
+
+        @self.app.route("/departments/<int:id>", methods=["GET"])
+        def departments(id):
+            company = Company.query.get(id)
+            return render_template("company/departments.html", company=company)
+
+        @self.app.route("/add_department/<int:id>", methods=["GET"])
+        def addDepartment(id):
+            company = Company.query.get(id)
+            form = AddDepartmentForm()
+
+            if form.validate_on_submit():
+                new_department = Department(name=form.name.data)
+                db.session.add(new_department)
+                db.session.commit()
+
+                flash("Department created successfully", "success")
+                return redirect(url_for("profile"))
+            return render_template("company/departments.html", company=company)
+
+        @self.app.route("/remove_department/<int:company_id>/<int:department_id>", methods=[ "POST"])
+        def removeDepartment(company_id, department_id):
+            company = Company.query.get(company_id)
+            department = Department.query.get(department_id)
+            userID = current_user.id
+            companyOwner = company.owner_id
+
+            if userID != companyOwner:
+                abort(403)
+
+            if department.company_id != company.id:
+                abort(403)
+            
+            db.session.delete(department)
+            db.session.commit()
+
+            flash("Department deleted successfully", "success")
+            return redirect(url_for("profile"))

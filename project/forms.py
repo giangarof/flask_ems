@@ -11,6 +11,7 @@ from wtforms import (
 )
 from wtforms.validators import DataRequired, Email, EqualTo
 
+# EMPLOYEE
 
 class CreateEmployeeForm(FlaskForm):
     name = StringField("Enter your name")
@@ -40,32 +41,6 @@ class CreateEmployeeForm(FlaskForm):
 class DelEmployeeForm(FlaskForm):
     id = IntegerField("ID user number to remove: ")
     submit = SubmitField("Remove User")
-
-
-class SignupUserForm(FlaskForm):
-    name = StringField("Enter your name", validators=[DataRequired()])
-    password = PasswordField("Set your password", validators=[DataRequired()])
-    email = EmailField("Your email", validators=[DataRequired(), Email()])
-
-    submit = SubmitField("Create User")
-
-
-class LoginUserForm(FlaskForm):
-    password = PasswordField("Your password", validators=[DataRequired()])
-    email = EmailField("Your email", validators=[DataRequired(), Email()])
-    submit = SubmitField("LogIn User")
-
-
-class CreateCompanyForm(FlaskForm):
-    name = StringField("New company name", validators=[DataRequired()])
-    about = TextAreaField("What is the company about?", validators=[DataRequired()])
-    submit = SubmitField("Create Company")
-
-
-class UpdateCompanyForm(FlaskForm):
-    name = StringField("Update company name", validators=[DataRequired()])
-    about = TextAreaField("What is the company about?", validators=[DataRequired()])
-    submit = SubmitField("Update Company")
 
 
 class AssignEmployeeForm(FlaskForm):
@@ -143,3 +118,39 @@ class UpdateAssignedFom(FlaskForm):
         ],
     )
     submit = SubmitField("Update Employee")
+
+
+# USER
+
+class SignupUserForm(FlaskForm):
+    name = StringField("Enter your name", validators=[DataRequired()])
+    password = PasswordField("Set your password", validators=[DataRequired()])
+    email = EmailField("Your email", validators=[DataRequired(), Email()])
+
+    submit = SubmitField("Create User")
+
+
+class LoginUserForm(FlaskForm):
+    password = PasswordField("Your password", validators=[DataRequired()])
+    email = EmailField("Your email", validators=[DataRequired(), Email()])
+    submit = SubmitField("LogIn User")
+
+
+# COMPANY
+class CreateCompanyForm(FlaskForm):
+    name = StringField("New company name", validators=[DataRequired()])
+    about = TextAreaField("What is the company about?", validators=[DataRequired()])
+    submit = SubmitField("Create Company")
+
+
+class UpdateCompanyForm(FlaskForm):
+    name = StringField("Update company name", validators=[DataRequired()])
+    about = TextAreaField("What is the company about?", validators=[DataRequired()])
+    submit = SubmitField("Update Company")
+
+
+# DEPARTMENT
+
+class AddDepartmentForm(FlaskForm):
+    name = StringField('Department name to add')
+    submit = SubmitField("Add Department to your Company")

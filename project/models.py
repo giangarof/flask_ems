@@ -24,7 +24,7 @@ class Employee(db.Model):
     # relations
     company_id = db.Column(db.Integer, db.ForeignKey("company.id"))
     created_by = db.Column(db.Integer, db.ForeignKey("user.id"))
-
+    department_id = db.Column(db.Integer, db.ForeignKey("department.id"))
 
 class Company(db.Model):
     __tablename__ = "company"
@@ -34,6 +34,11 @@ class Company(db.Model):
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     employees = db.relationship("Employee", backref="company")
 
+class Department(db.Model):
+    __tablename__ = "department"
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text)
+    company_id = db.Column(db.Integer, db.ForeignKey("company.id"))
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"
