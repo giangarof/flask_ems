@@ -3,9 +3,69 @@
 <div class="m-5">
   <h1>Departments at: {{company.name}}</h1>
 
-  <!-- loop over deartments | display total of employees in that department | delete icon -->
+  <div class="dropdown">
+    <button
+      type="button"
+      class="btn btn-primary dropdown-toggle"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+      data-bs-auto-close="outside"
+    >
+      Add Department
+    </button>
+    <form
+      class="dropdown-menu p-4"
+      method="POST"
+      action="{{ url_for('departments', id=company.id) }}"
+    >
+      {{form.hidden_tag()}}
+      <div class="mb-3">
+        <label for="name" class="form-label">{{form.name.label}}</label>
+        {{ form.name(class="form-control") }}
+      </div>
 
-  <button class="btn btn-primary">Add Departments</button>
+      {{form.submit(class="btn btn-primary")}}
+    </form>
+  </div>
+
+  {% if departments %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th>Name</th>
+        <th>See employees</th>
+        <th>Total</th>
+
+        <th>Delete</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for department in departments %}
+      <tr>
+        <td scope="row">{{department.id}}</td>
+        <td>{{department.name}}</td>
+        <td><a href="">list</a></td>
+        <td>Total</td>
+
+        <td>
+          <form
+            action="{{url_for('removeDepartment', company_id=company.id, department_id=department.id)}}"
+            method="POST"
+          >
+            <button class="btn btn-primary">
+              <i class="fa-solid fa-x"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <p>No departments listed in this company yet ...</p>
+      <button class="btn btn-primary">Add employees</button>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
 </div>
 
 {% endblock %}

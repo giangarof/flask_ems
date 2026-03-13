@@ -58,18 +58,7 @@ class AssignEmployeeForm(FlaskForm):
             ("Apprenticeship", "Apprenticeship"),
         ],
     )
-    department = SelectField(
-        "Department",
-        choices=[
-            ("IT", "IT"),
-            ("Help Desk", "Help Desk"),
-            ("HR", "HR"),
-            ("SWE", "SWE"),
-            ("Data Analytics", "Data Analytics"),
-            ("FrontEnd", "FrontEnd"),
-            ("Backend", "Backend"),
-        ],
-    )
+    department = SelectField("Department", coerce=int)
     submit = SubmitField("Assign Employee")
 
 
@@ -79,6 +68,7 @@ class UpdateUnassignedFom(FlaskForm):
     degree = SelectField(
         "Highest Degree",
         choices=[
+            ("High School","High School"),
             ("AA", "AA"),
             ("AS", "AS"),
             ("BA", "BA"),
@@ -105,18 +95,7 @@ class UpdateAssignedFom(FlaskForm):
             ("Apprenticeship", "Apprenticeship"),
         ],
     )
-    department = SelectField(
-        "Department",
-        choices=[
-            ("IT", "IT"),
-            ("Help Desk", "Help Desk"),
-            ("HR", "HR"),
-            ("SWE", "SWE"),
-            ("Data Analytics", "Data Analytics"),
-            ("FrontEnd", "FrontEnd"),
-            ("Backend", "Backend"),
-        ],
-    )
+    department = SelectField("Department", coerce=int)
     submit = SubmitField("Update Employee")
 
 

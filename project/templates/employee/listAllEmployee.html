@@ -1,6 +1,10 @@
 {% extends 'navbar.html' %} {% block content %}
 
 <div class="m-5">
+  <div>
+    <a href="{{url_for('add')}}" class="btn btn-primary">Add employees</a>
+  </div>
+  {% if employees %}
   <table class="table">
     <thead>
       <tr>
@@ -17,8 +21,8 @@
         <th>Delete</th>
       </tr>
     </thead>
+    {% for employee in employees %}
     <tbody>
-      {% for employee in employees %}
       <tr>
         <th scope="row">{{employee.id}}</th>
         <td>{{employee.name}}</td>
@@ -29,11 +33,15 @@
         <td>{{employee.status}}</td>
 
         <td>
-          <a href="{{url_for('updateUnassigned', id=employee.id)}}"><i class="fa-regular fa-pen-to-square"></i></a>
+          <a href="{{url_for('updateUnassigned', id=employee.id)}}"
+            ><i class="fa-regular fa-pen-to-square"></i
+          ></a>
         </td>
 
         <td>
-          <a href="{{url_for('assignEmployee', id=employee.id)}}">Asign to a company</a>
+          <a href="{{url_for('assignEmployee', id=employee.id)}}"
+            >Asign to a company</a
+          >
         </td>
 
         <td>
@@ -44,10 +52,12 @@
       </tr>
       {% else %}
       <p>No Employee in this company yet ...</p>
-      <button class="btn btn-primary">Add employees</button>
+      <a href="{{url_for('add')}}" class="btn btn-primary">Add employees</a>
+
       {% endfor %}
     </tbody>
   </table>
+  {% endif %}
 </div>
 
 {% endblock %}

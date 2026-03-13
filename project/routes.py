@@ -62,7 +62,7 @@ class EmployeeRoutes:
                 db.session.add(new_employee)
                 db.session.commit()
                 flash("Employee created successfully!", "success")
-                return redirect(url_for("profile"))
+                return redirect(url_for("list_all_employees"))
 
             return render_template("employee/createEmployee.html", form=form)
 
@@ -87,15 +87,11 @@ class EmployeeRoutes:
 
         # LIST ALL UNASSIGNED
         # FILTER BY CREATED_BY
-        @self.app.route("/list_unassigned")
-        def list_all_unassigned():
-            employees = Employee.query.filter_by(
-                status="Unassigned", created_by=current_user.id
-            ).all()
+        @self.app.route("/list_employees")
+        def list_all_employees():
+            employees = Employee.query.filter_by(created_by=current_user.id).all()
 
-            return render_template(
-                "employee/listAllUnassigned.html", employees=employees
-            )
+            return render_template("employee/listAllEmployee.html", employees=employees)
 
         # DELETE EMPLOYEE FROM DB
         @self.app.route("/delete/<int:id>", methods=["GET", "POST"])
@@ -106,7 +102,7 @@ class EmployeeRoutes:
             db.session.delete(employee)
             db.session.commit()
             flash("Employee deleted successfully!", "success")
-            return redirect(url_for("list_all_unassigned"))
+            return redirect(url_for("list_all_employees"))
 
         # SECONG PART
         # ASSIGNED EMPLOYEE
@@ -284,50 +280,59 @@ class CompanyRoutes:
                 "company/updateCompany.html", form=form, company=company
             )
 
-        @self.app.route("/delete_company", methods=["GET", "POST"])
+        @self.app.route("/delete_company/<int:id>", methods=["GET", "POST"])
         @login_required
-        def deleteCompany():
-            pass
+        def deleteCompany(id):
+            company = Company.query.get(id)
+            if company.owner_id != current_user.id:
+                abort(403)
+            db.session.delete(company)
+            db.session.commit()
+
+            flash("Company deleted successfully", "success")
+            return redirect(url_for("companies"))
 
         @self.app.route("/company_employees/<int:id>", methods=["GET"])
         def list_company_employees(id):
             employees = Employee.query.filter_by(company_id=id, status="Active").all()
             return render_template("company/companyEmployees.html", employees=employees)
 
-        @self.app.route("/departments/<int:id>", methods=["GET"])
+        @self.app.route("/departments/<int:id>", methods=["GET", "POST"])
         def departments(id):
-            company = Company.query.get(id)
-            return render_template("company/departments.html", company=company)
-
-        @self.app.route("/add_department/<int:id>", methods=["GET"])
-        def addDepartment(id):
-            company = Company.query.get(id)
             form = AddDepartmentForm()
+            company = Company.query.get(id)
+            departments = Department.query.filter_by(company_id=company.id).all()
 
             if form.validate_on_submit():
-                new_department = Department(name=form.name.data)
+                new_department = Department(name=form.name.data, company_id=company.id)
                 db.session.add(new_department)
                 db.session.commit()
 
                 flash("Department created successfully", "success")
-                return redirect(url_for("profile"))
-            return render_template("company/departments.html", company=company)
+                return redirect(request.url)
+            return render_template(
+                "company/departments.html",
+                departments=departments,
+                company=company,
+                form=form,
+            )
 
-        @self.app.route("/remove_department/<int:company_id>/<int:department_id>", methods=[ "POST"])
+        @self.app.route(
+            "/remove_department/<int:company_id>/<int:department_id>",
+            methods=["POST"],
+        )
+        @login_required
         def removeDepartment(company_id, department_id):
-            company = Company.query.get(company_id)
-            department = Department.query.get(department_id)
+            company = Company.query.get_or_404(company_id)
+            department = Department.query.get_or_404(department_id)
             userID = current_user.id
             companyOwner = company.owner_id
 
-            if userID != companyOwner:
+            if userID != companyOwner and department.company_id != company.id:
                 abort(403)
 
-            if department.company_id != company.id:
-                abort(403)
-            
             db.session.delete(department)
             db.session.commit()
 
             flash("Department deleted successfully", "success")
-            return redirect(url_for("profile"))
+            return redirect(url_for('departments',id=company_id))

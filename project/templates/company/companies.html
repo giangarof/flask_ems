@@ -20,10 +20,14 @@
         <td>{{company.name}}</td>
         <td>{{company.about}}</td>
         <td>
-          <a href="{{url_for('departments', id=company.id)}}">See Departments</a>
+          <a href="{{url_for('departments', id=company.id)}}"
+            >See Departments</a
+          >
         </td>
         <td>
-          <a href="{{url_for('list_company_employees', id=company.id)}}">Employee List</a>
+          <a href="{{url_for('list_company_employees', id=company.id)}}"
+            >Employee List</a
+          >
         </td>
         <td>
           <a href="{{url_for('updateCompany', id=company.id)}}"
