@@ -14,8 +14,8 @@ from wtforms.validators import DataRequired, Email, EqualTo
 # EMPLOYEE
 
 class CreateEmployeeForm(FlaskForm):
-    name = StringField("Enter your name")
-    email = EmailField("Your email")
+    name = StringField("Name")
+    email = EmailField("Email")
     degree = SelectField(
         "Highest Degree",
         choices=[
@@ -58,7 +58,7 @@ class AssignEmployeeForm(FlaskForm):
             ("Apprenticeship", "Apprenticeship"),
         ],
     )
-    department = SelectField("Department", coerce=int)
+    # department_id = SelectField("Department", coerce=int)
     submit = SubmitField("Assign Employee")
 
 
@@ -95,7 +95,7 @@ class UpdateAssignedFom(FlaskForm):
             ("Apprenticeship", "Apprenticeship"),
         ],
     )
-    department = SelectField("Department", coerce=int)
+    department_id = SelectField("Department", coerce=int)
     submit = SubmitField("Update Employee")
 
 

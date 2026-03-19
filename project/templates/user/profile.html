@@ -1,24 +1,37 @@
 {% extends 'navbar.html' %} {% block content %}
 
 <div class="m-5">
-  <h1>{{current_user.name}}</h1>
+  <div class="d-flex flex-column gap-4">
+    <div>
+      <h2>Your profile: {{current_user.name}}</h2>
+    </div>
 
-  <div>
-    <button class="btn btn-primary">
-      <a class="nav-link" href="{{url_for('createCompany')}}">Add company</a>
-    </button>
+    <div class="d-flex flex-column gap-4">
+      <div class="">
+        <h3>Company</h3>
+        <button class="btn btn-primary">
+          <a class="nav-link" href="{{url_for('createCompany')}}"
+            >Add company</a
+          >
+        </button>
 
-    <button class="btn btn-primary">
-      <a class="nav-link" href="{{url_for('companies')}}">See Companies</a>
-    </button>
-    <button class="btn btn-primary">
-      <a class="nav-link" href="{{url_for('add')}}">Create Employee</a>
-    </button>
-    <button class="btn btn-primary">
-      <a class="nav-link" href="{{url_for('list_all_employees')}}"
-        >Your Employees</a
-      >
-    </button>
+        <button class="btn btn-primary">
+          <a class="nav-link" href="{{url_for('companies')}}">See Companies</a>
+        </button>
+      </div>
+
+      <div>
+        <h3>Employee</h3>
+        <button class="btn btn-primary">
+          <a class="nav-link" href="{{url_for('add')}}">Create Employee</a>
+        </button>
+        <button class="btn btn-primary">
+          <a class="nav-link" href="{{url_for('list_all_employees')}}"
+            >Your Employees</a
+          >
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 

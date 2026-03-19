@@ -1,6 +1,12 @@
 {% extends 'navbar.html' %} {% block content %}
 
-<div class="m-5">
+<div class="m-5 d-flex flex-column gap-4">
+  <div>
+    <h3>Current Companies</h3>
+    <button class="btn btn-primary">
+      <a class="nav-link" href="{{url_for('createCompany')}}">Add Company</a>
+    </button>
+  </div>
   <table class="table">
     <thead>
       <tr>
@@ -36,7 +42,11 @@
         </td>
 
         <td>
-          <a href=""><i class="fa-solid fa-x"></i></a>
+          <a
+            href="{{url_for('deleteCompany', id=company.id)}}"
+            class="hover-red"
+            ><i class="fa-solid fa-x"></i
+          ></a>
         </td>
       </tr>
       {% endfor %}

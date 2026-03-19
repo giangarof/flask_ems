@@ -1,31 +1,33 @@
 {% extends 'navbar.html' %} {% block content %}
 
-<div class="m-5">
-  <h1>Departments at: {{company.name}}</h1>
+<div class="m-5 d-flex flex-column gap-4">
+  <div>
+    <h1>Departments at: {{company.name}}</h1>
 
-  <div class="dropdown">
-    <button
-      type="button"
-      class="btn btn-primary dropdown-toggle"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-      data-bs-auto-close="outside"
-    >
-      Add Department
-    </button>
-    <form
-      class="dropdown-menu p-4"
-      method="POST"
-      action="{{ url_for('departments', id=company.id) }}"
-    >
-      {{form.hidden_tag()}}
-      <div class="mb-3">
-        <label for="name" class="form-label">{{form.name.label}}</label>
-        {{ form.name(class="form-control") }}
-      </div>
+    <div class="dropdown">
+      <button
+        type="button"
+        class="btn btn-primary dropdown-toggle"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+        data-bs-auto-close="outside"
+      >
+        Add Department
+      </button>
+      <form
+        class="dropdown-menu p-4"
+        method="POST"
+        action="{{ url_for('departments', id=company.id) }}"
+      >
+        {{form.hidden_tag()}}
+        <div class="mb-3">
+          <label for="name" class="form-label">{{form.name.label}}</label>
+          {{ form.name(class="form-control") }}
+        </div>
 
-      {{form.submit(class="btn btn-primary")}}
-    </form>
+        {{form.submit(class="btn btn-primary")}}
+      </form>
+    </div>
   </div>
 
   {% if departments %}
@@ -35,7 +37,7 @@
         <th scope="col">#</th>
         <th>Name</th>
         <th>See employees</th>
-        <th>Total</th>
+        <th>Total Employees</th>
 
         <th>Delete</th>
       </tr>
@@ -46,17 +48,14 @@
         <td scope="row">{{department.id}}</td>
         <td>{{department.name}}</td>
         <td><a href="">list</a></td>
-        <td>Total</td>
+        <td>{{ employees_count[department.id] }}</td>
 
         <td>
-          <form
-            action="{{url_for('removeDepartment', company_id=company.id, department_id=department.id)}}"
-            method="POST"
-          >
-            <button class="btn btn-primary">
-              <i class="fa-solid fa-x"></i>
-            </button>
-          </form>
+          <a
+            href="{{url_for('removeDepartment', company_id=company.id, department_id=department.id)}}"
+            class="hover-red"
+            ><i class="fa-solid fa-x"></i
+          ></a>
         </td>
       </tr>
       {% else %}

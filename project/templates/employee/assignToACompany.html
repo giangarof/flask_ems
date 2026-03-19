@@ -2,6 +2,7 @@
 
 <div class="m-5">
   <h1>Assign employee to a company</h1>
+
   <form method="POST">
     {{form.hidden_tag()}}
     <div class="mb-3">
@@ -23,16 +24,10 @@
       {{ form.employment_type(class="form-control") }}
     </div>
     <div class="mb-3">
-      <label for="department" class="form-label"
-        >{{form.department.label}}</label
-      >
-      {{ form.department(class="form-control") }}
-    </div>
-    <div class="mb-3">
       <label for="company_id" class="form-label"
         >{{form.company_id.label}}</label
       >
-      {{ form.company_id(class="form-control") }}
+      {{ form.company_id(class="form-control" ) }}
     </div>
 
     {{form.submit(class="btn btn-primary")}}

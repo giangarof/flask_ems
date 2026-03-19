@@ -1,8 +1,11 @@
 {% extends 'navbar.html' %} {% block content %}
 
-<div class="m-5">
+<div class="m-5 d-flex flex-column gap-4">
   <div>
-    <a href="{{url_for('add')}}" class="btn btn-primary">Add employees</a>
+    <h3>Current Employees</h3>
+    <div>
+      <a href="{{url_for('add')}}" class="btn btn-primary">Add employees</a>
+    </div>
   </div>
   {% if employees %}
   <table class="table">
@@ -11,11 +14,8 @@
         <th scope="col">#</th>
         <th>Name</th>
         <th>Email</th>
-
         <th>Degree</th>
-
         <th>Status</th>
-
         <th>Update</th>
         <th>Assign</th>
         <th>Delete</th>

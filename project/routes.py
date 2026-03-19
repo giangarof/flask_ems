@@ -30,6 +30,18 @@ class BaseRoutes:
         def index():
             return render_template("home.html")
 
+        @self.app.errorhandler(404)
+        def page_not_found(e):
+            return render_template("error/error_404.html"), 404
+
+        @self.app.errorhandler(400)
+        def bad_request(e):
+            return render_template("error/error_400.html"), 400
+
+        @self.app.errorhandler(403)
+        def not_allowed(e):
+            return render_template("error/error_403.html"), 403
+
 
 class EmployeeRoutes:
     def __init__(self, app, db):
@@ -79,7 +91,7 @@ class EmployeeRoutes:
 
                 db.session.commit()
                 flash("Employee updated successfully!", "success")
-                return redirect(url_for("profile"))
+                return redirect(url_for("list_all_employees"))
 
             return render_template(
                 "employee/updateUnassigned.html", form=form, employee=employee
@@ -127,16 +139,18 @@ class EmployeeRoutes:
                 employee.hired = form.hired.data
                 employee.role = form.role.data
                 employee.employment_type = form.employment_type.data
-                employee.department = form.department.data
                 employee.company_id = form.company_id.data
+                # employee.department_id = form.department_id.data
                 employee.status = "Active"
 
                 db.session.commit()
                 flash("Employee assigned successfully!", "success")
-                return redirect(url_for("profile"))
+                return redirect(url_for("list_all_employees"))
 
             return render_template(
-                "employee/assignToACompany.html", form=form, employee=employee
+                "employee/assignToACompany.html",
+                form=form,
+                employee=employee,
             )
 
         # UPDATE ASSIGNED EMPLOYEE
@@ -144,13 +158,21 @@ class EmployeeRoutes:
         def updateAssigned(id):
             employee = Employee.query.get(id)
             form = UpdateAssignedFom(obj=employee)
+
+            companies = Company.query.filter_by(owner_id=current_user.id).all()
+
+            departments = Department.query.filter_by(
+                company_id=employee.company_id
+            ).all()
+            form.department_id.choices = [(d.id, d.name) for d in departments]
+
             if form.validate_on_submit():
 
                 employee.salary = form.salary.data
                 employee.hired = form.hired.data
                 employee.role = form.role.data
                 employee.employment_type = form.employment_type.data
-                employee.department = form.department.data
+                employee.department_id = form.department_id.data
 
                 db.session.commit()
                 flash("Employee updated successfully!", "success")
@@ -166,10 +188,16 @@ class EmployeeRoutes:
             employee = Employee.query.get(id)
             if employee.created_by == current_user.id:
                 employee.status = "Unassigned"
+                employee.department_id = None
+                employee.department = None  #
+                employee.salary = None
+                employee.hired = None
+                employee.role = None
+                employee.employment_type = None
 
             db.session.commit()
             flash("Employee removed from the company", "success")
-            return redirect(url_for("profile"))
+            return redirect(request.referrer)
 
 
 class UserRoutes:
@@ -260,7 +288,7 @@ class CompanyRoutes:
                 db.session.commit()
 
                 flash("Company created successfully", "success")
-                return redirect(url_for("profile"))
+                return redirect(url_for("companies"))
             return render_template("company/addCompany.html", form=form)
 
         @self.app.route("/update_company/<int:id>", methods=["GET", "POST"])
@@ -295,13 +323,26 @@ class CompanyRoutes:
         @self.app.route("/company_employees/<int:id>", methods=["GET"])
         def list_company_employees(id):
             employees = Employee.query.filter_by(company_id=id, status="Active").all()
-            return render_template("company/companyEmployees.html", employees=employees)
+            departments = Department.query.filter_by(company_id=id).all()
+            company = Company.query.filter_by(id=id).first()
+
+            return render_template(
+                "company/companyEmployees.html",
+                employees=employees,
+                departments=departments,
+                company=company,
+            )
 
         @self.app.route("/departments/<int:id>", methods=["GET", "POST"])
         def departments(id):
             form = AddDepartmentForm()
+
             company = Company.query.get(id)
             departments = Department.query.filter_by(company_id=company.id).all()
+            employees_count = {
+                d.id: Employee.query.filter_by(department_id=d.id).count()
+                for d in departments
+            }
 
             if form.validate_on_submit():
                 new_department = Department(name=form.name.data, company_id=company.id)
@@ -315,12 +356,10 @@ class CompanyRoutes:
                 departments=departments,
                 company=company,
                 form=form,
+                employees_count=employees_count,
             )
 
-        @self.app.route(
-            "/remove_department/<int:company_id>/<int:department_id>",
-            methods=["POST"],
-        )
+        @self.app.route("/remove_department/<int:company_id>/<int:department_id>")
         @login_required
         def removeDepartment(company_id, department_id):
             company = Company.query.get_or_404(company_id)
@@ -335,4 +374,16 @@ class CompanyRoutes:
             db.session.commit()
 
             flash("Department deleted successfully", "success")
-            return redirect(url_for('departments',id=company_id))
+            return redirect(url_for("departments", id=company_id))
+
+        @self.app.route("/set_department/<int:employee_id>/<int:department_id>")
+        def setDepartementToEmployee(employee_id, department_id):
+
+            employee = Employee.query.get(employee_id)
+            department = Department.query.get(department_id)
+            employee.department_id = department.id
+            employee.department = department.name
+
+            db.session.commit()
+            flash("Department updated!", "success")
+            return redirect(url_for("list_company_employees", id=employee.company_id))

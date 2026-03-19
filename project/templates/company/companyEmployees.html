@@ -1,7 +1,10 @@
 {% extends 'navbar.html' %} {% block content %}
 
 <div class="m-5">
-  {% for employee in employees %}
+  <div>
+    <h1>Employees at: {{company.name}}</h1>
+  </div>
+  {% if employees %}
   <table class="table">
     <thead>
       <tr>
@@ -19,6 +22,7 @@
         <th>Remove</th>
       </tr>
     </thead>
+    {% for employee in employees %}
     <tbody>
       <tr>
         <th scope="row">{{employee.id}}</th>
@@ -30,7 +34,32 @@
         <td>{{employee.role}}</td>
         <td>{{employee.status}}</td>
         <td>{{employee.employment_type}}</td>
-        <td>{{employee.department}}</td>
+        <td>
+          <div class="btn-group">
+            <button
+              type="button"
+              class="btn btn-primary dropdown-toggle"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              {{ employee.department if employee.department else "Pending to
+              add" }}
+            </button>
+            <ul class="dropdown-menu">
+              {% for dept in departments %} {% if dept.id !=
+              employee.department_id %}
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="{{ url_for('setDepartementToEmployee', employee_id=employee.id, department_id=dept.id) }}"
+                >
+                  {{ dept.name }}
+                </a>
+              </li>
+              {% endif %} {% endfor %}
+            </ul>
+          </div>
+        </td>
         <td>
           <a href="{{url_for('updateAssigned', id=employee.id)}}"
             ><i class="fa-regular fa-pen-to-square"></i
@@ -38,17 +67,24 @@
         </td>
 
         <td>
-          <a href="{{url_for('unassignEmployee', id=employee.id)}}"
+          <a
+            href="{{url_for('unassignEmployee', id=employee.id)}}"
+            class="hover-red"
             ><i class="fa-solid fa-x"></i
           ></a>
         </td>
       </tr>
+      {% endfor %}
     </tbody>
   </table>
   {% else %}
   <p>No Employee in this company yet ...</p>
-  <button class="btn btn-primary">Add employees</button>
-  {% endfor %}
+  <button class="btn btn-primary">
+    <a class="nav-link" href="{{url_for('list_all_employees')}}"
+      >Add Employees</a
+    >
+  </button>
+  {% endif %}
 </div>
 
 {% endblock %}
