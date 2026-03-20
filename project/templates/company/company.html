@@ -1,0 +1,20 @@
+{% extends "navbar.html" %} {% block content %}
+<div class="m-5">
+  <h2>Company: {{company.name}}</h2>
+
+  <div>
+    <p>Owner: {{company.owner.name}}</p>
+
+    {% if company.departments %}
+    <ul>
+      {% for dept in company.departments %}
+      <li>{{ dept.name }}</li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p>No departments...</p>
+    {% endif %}
+    
+  </div>
+</div>
+{% endblock %}

@@ -33,12 +33,15 @@ class Company(db.Model):
     about = db.Column(db.Text)
     owner_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     employees = db.relationship("Employee", backref="company")
+    # owner = db.relationship("User", backref="owned_companies")
 
 class Department(db.Model):
     __tablename__ = "department"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     company_id = db.Column(db.Integer, db.ForeignKey("company.id"))
+    company = db.relationship("Company", backref="departments")
+    # owner = db.relationship("User", backref="owned_companies")
 
 class User(db.Model, UserMixin):
     __tablename__ = "user"

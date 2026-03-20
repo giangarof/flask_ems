@@ -9,13 +9,14 @@ from wtforms import (
     PasswordField,
     EmailField,
 )
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.validators import DataRequired, Email
 
 # EMPLOYEE
 
+
 class CreateEmployeeForm(FlaskForm):
-    name = StringField("Name")
-    email = EmailField("Email")
+    name = StringField("Name", validators=[DataRequired()])
+    email = EmailField("Email", validators=[DataRequired(), Email()])
     degree = SelectField(
         "Highest Degree",
         choices=[
@@ -27,6 +28,7 @@ class CreateEmployeeForm(FlaskForm):
             ("PHD", "PHD"),
             # ("Active", "Active"),
         ],
+        validators=[DataRequired()],
     )
     status = SelectField(
         "Status",
@@ -34,6 +36,7 @@ class CreateEmployeeForm(FlaskForm):
             ("Unassigned", "Unassigned"),
             # ("Active", "Active"),
         ],
+        validators=[DataRequired()],
     )
     submit = SubmitField("Create Employee")
 
@@ -68,7 +71,7 @@ class UpdateUnassignedFom(FlaskForm):
     degree = SelectField(
         "Highest Degree",
         choices=[
-            ("High School","High School"),
+            ("High School", "High School"),
             ("AA", "AA"),
             ("AS", "AS"),
             ("BA", "BA"),
@@ -101,6 +104,7 @@ class UpdateAssignedFom(FlaskForm):
 
 # USER
 
+
 class SignupUserForm(FlaskForm):
     name = StringField("Enter your name", validators=[DataRequired()])
     password = PasswordField("Set your password", validators=[DataRequired()])
@@ -130,6 +134,7 @@ class UpdateCompanyForm(FlaskForm):
 
 # DEPARTMENT
 
+
 class AddDepartmentForm(FlaskForm):
-    name = StringField('Department name to add')
+    name = StringField("Department name to add")
     submit = SubmitField("Add Department to your Company")

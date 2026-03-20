@@ -30,6 +30,36 @@ class BaseRoutes:
         def index():
             return render_template("home.html")
 
+        @self.app.route("/search", methods=["GET"])
+        def search():
+            query = request.args.get("query", "").strip()
+            employee_results = []
+            company_results = []
+            department_results = []
+            if query:
+                # Search Employees
+                employee_results = Employee.query.filter(
+                    Employee.name.ilike(f"%{query}%")
+                ).all()
+
+                # Search Companies
+                company_results = Company.query.filter(
+                    Company.name.ilike(f"%{query}%")
+                ).all()
+
+                # Search Departments
+                department_results = Department.query.filter(
+                    Department.name.ilike(f"%{query}%")
+                ).all()
+
+            return render_template(
+                "search_result.html",
+                query=query,
+                employee_results=employee_results,
+                company_results=company_results,
+                department_results=department_results,
+            )
+
         @self.app.errorhandler(404)
         def page_not_found(e):
             return render_template("error/error_404.html"), 404
@@ -39,8 +69,12 @@ class BaseRoutes:
             return render_template("error/error_400.html"), 400
 
         @self.app.errorhandler(403)
-        def not_allowed(e):
+        def forbidden(e):
             return render_template("error/error_403.html"), 403
+
+        @self.app.errorhandler(500)
+        def server_error(e):
+            return render_template("error/error_500.html"), 500
 
 
 class EmployeeRoutes:
@@ -59,9 +93,9 @@ class EmployeeRoutes:
         # CREATE EMPLOYEE
         # UNASSIGNED BY DEFAULT
         @self.app.route("/add", methods=["GET", "POST"])
+        @login_required
         def add():
             form = CreateEmployeeForm()
-
             if form.validate_on_submit():
 
                 new_employee = Employee(
@@ -80,8 +114,9 @@ class EmployeeRoutes:
 
         # UPDATE EMPLOYEE UNASSIGNED
         @self.app.route("/update_unassiged/<int:id>", methods=["GET", "POST"])
+        @login_required
         def updateUnassigned(id):
-            employee = Employee.query.get(id)
+            employee = Employee.query.get_or_404(id)
             form = UpdateUnassignedFom(obj=employee)
             if form.validate_on_submit():
 
@@ -100,6 +135,7 @@ class EmployeeRoutes:
         # LIST ALL UNASSIGNED
         # FILTER BY CREATED_BY
         @self.app.route("/list_employees")
+        @login_required
         def list_all_employees():
             employees = Employee.query.filter_by(created_by=current_user.id).all()
 
@@ -107,8 +143,9 @@ class EmployeeRoutes:
 
         # DELETE EMPLOYEE FROM DB
         @self.app.route("/delete/<int:id>", methods=["GET", "POST"])
+        @login_required
         def delete(id):
-            employee = Employee.query.get(id)
+            employee = Employee.query.get_or_404(id)
             if employee.created_by != current_user.id:
                 abort(403)
             db.session.delete(employee)
@@ -122,10 +159,11 @@ class EmployeeRoutes:
         # ASIGN EMPLOYEE TO A COMPANY
         # CHANGE STATUS FROM UNASIGNED TO ACTIVE
         @self.app.route("/assign/<int:id>", methods=["GET", "POST"])
+        @login_required
         def assignEmployee(id):
             form = AssignEmployeeForm()
             # get the employee id
-            employee = Employee.query.get(id)
+            employee = Employee.query.get_or_404(id)
 
             # query only the companies that the user has
             companies = Company.query.filter_by(owner_id=current_user.id).all()
@@ -155,8 +193,9 @@ class EmployeeRoutes:
 
         # UPDATE ASSIGNED EMPLOYEE
         @self.app.route("/update_assiged/<int:id>", methods=["GET", "POST"])
+        @login_required
         def updateAssigned(id):
-            employee = Employee.query.get(id)
+            employee = Employee.query.get_or_404(id)
             form = UpdateAssignedFom(obj=employee)
 
             companies = Company.query.filter_by(owner_id=current_user.id).all()
@@ -184,8 +223,9 @@ class EmployeeRoutes:
 
         # REMOVE FROM ACTIVE TO UNASSIGNED
         @self.app.route("/remove/<int:id>", methods=["GET", "POST"])
+        @login_required
         def unassignEmployee(id):
-            employee = Employee.query.get(id)
+            employee = Employee.query.get_or_404(id)
             if employee.created_by == current_user.id:
                 employee.status = "Unassigned"
                 employee.department_id = None
@@ -198,6 +238,20 @@ class EmployeeRoutes:
             db.session.commit()
             flash("Employee removed from the company", "success")
             return redirect(request.referrer)
+
+        @self.app.route("/employee/<int:id>", methods=["GET"])
+        @login_required
+        def getEmployeeProfile(id):
+            employee = Employee.query.get_or_404(id)
+            company = Company.query.get(employee.company_id)
+            department = Department.query.get(employee.department_id)
+
+            return render_template(
+                "employee/employeeProfile.html",
+                employee=employee,
+                company=company,
+                department=department,
+            )
 
 
 class UserRoutes:
@@ -270,6 +324,12 @@ class CompanyRoutes:
 
     def company_routes(self):
 
+        @self.app.route("/company/<int:id>", methods=["GET"])
+        @login_required
+        def companyProfile(id):
+            company = Company.query.get_or_404(id)
+            return render_template("company/company.html", company=company)
+
         @self.app.route("/companies", methods=["GET"])
         @login_required
         def companies():
@@ -294,7 +354,7 @@ class CompanyRoutes:
         @self.app.route("/update_company/<int:id>", methods=["GET", "POST"])
         @login_required
         def updateCompany(id):
-            company = Company.query.get(id)
+            company = Company.query.get_or_404(id)
             form = UpdateCompanyForm(obj=company)
             if form.validate_on_submit():
                 company.name = form.name.data
@@ -311,7 +371,7 @@ class CompanyRoutes:
         @self.app.route("/delete_company/<int:id>", methods=["GET", "POST"])
         @login_required
         def deleteCompany(id):
-            company = Company.query.get(id)
+            company = Company.query.get_or_404(id)
             if company.owner_id != current_user.id:
                 abort(403)
             db.session.delete(company)
@@ -321,6 +381,7 @@ class CompanyRoutes:
             return redirect(url_for("companies"))
 
         @self.app.route("/company_employees/<int:id>", methods=["GET"])
+        @login_required
         def list_company_employees(id):
             employees = Employee.query.filter_by(company_id=id, status="Active").all()
             departments = Department.query.filter_by(company_id=id).all()
@@ -334,10 +395,11 @@ class CompanyRoutes:
             )
 
         @self.app.route("/departments/<int:id>", methods=["GET", "POST"])
+        @login_required
         def departments(id):
             form = AddDepartmentForm()
 
-            company = Company.query.get(id)
+            company = Company.query.get_or_404(id)
             departments = Department.query.filter_by(company_id=company.id).all()
             employees_count = {
                 d.id: Employee.query.filter_by(department_id=d.id).count()
@@ -377,10 +439,11 @@ class CompanyRoutes:
             return redirect(url_for("departments", id=company_id))
 
         @self.app.route("/set_department/<int:employee_id>/<int:department_id>")
+        @login_required
         def setDepartementToEmployee(employee_id, department_id):
 
-            employee = Employee.query.get(employee_id)
-            department = Department.query.get(department_id)
+            employee = Employee.query.get_or_404(employee_id)
+            department = Department.query.get_or_404(department_id)
             employee.department_id = department.id
             employee.department = department.name
 

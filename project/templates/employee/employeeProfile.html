@@ -1,0 +1,18 @@
+{% extends "navbar.html" %} {% block content %}
+
+<div class="m-5">
+  <h2>{{employee.name}}</h2>
+  <div>
+    <p>ID: {{employee.id}}</p>
+    <p>Email: {{employee.email}}</p>
+    <p>Degree: {{employee.degree}}</p>
+    <p>Status: {{employee.status}}</p>
+    <p>Role: {{employee.role}}</p>
+    <p>Employment type: {{employee.employment_type}}</p>
+    <p>Hired date: {{employee.hired}}</p>
+    <p>Company: {{company.name}}</p>
+    <p>Department: {{department.name}}</p>
+  </div>
+</div>
+
+{% endblock %}

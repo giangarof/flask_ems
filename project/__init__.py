@@ -20,5 +20,4 @@ def create_app():
     UserRoutes(app, db, bcrypt)
     CompanyRoutes(app, db)
     BaseRoutes(app)
-
     return app

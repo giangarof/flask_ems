@@ -6,7 +6,7 @@
     Notice: after creation, employees are unassigned. You must add it manually
   </p>
   <form method="POST">
-    {{form.hidden_tag()}}
+    {{ form.hidden_tag() }}
     <div class="mb-3">
       <label for="name" class="form-label">{{form.name.label}}</label>
       {{ form.name(class="form-control") }}

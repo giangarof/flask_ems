@@ -1,0 +1,31 @@
+{% extends "navbar.html" %} {% block content %}
+  <div class="container m-5">
+    <h3>Search results for "{{ query }}"</h3>
+
+    {% if employee_results %}
+    <h5>Employees</h5>
+    <ul>
+      {% for e in employee_results %}
+      <li><a href="{{url_for('getEmployeeProfile', id=e.id)}}">{{e.name}}</a> - {{ e.email }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% if company_results %}
+    <h5>Companies</h5>
+    <ul>
+      {% for c in company_results %}
+      <li><a href="{{url_for('companyProfile', id=c.id)}}">{{ c.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% if department_results %}
+    <h5>Departments</h5>
+    <ul>
+      {% for dept in department_results %}
+      <li>{{ dept.name }} at {{dept.company.name}}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% if not (employee_results or company_results or
+    department_results) %}
+    <p>No results found.</p>
+    {% endif %}
+  </div>
+{% endblock %}
